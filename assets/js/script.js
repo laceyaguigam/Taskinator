@@ -6,16 +6,13 @@ var tasksInProgressEl = document.querySelector("#tasks-in-progress");
 var tasksCompletedEl = document.querySelector("#tasks-completed");
 var pageContentEl = document.querySelector("#page-content");
 
-// create array to hold tasks for saving
-var tasks = [];
-
-var taskFormHandler = function (event) {
+var taskFormHandler = function(event) {
   event.preventDefault();
   var taskNameInput = document.querySelector("input[name='task-name']").value;
   var taskTypeInput = document.querySelector("select[name='task-type']").value;
 
   // check if inputs are empty (validate)
-  if (!taskNameInput || !taskTypeInput) {
+  if (taskNameInput === "" || taskTypeInput === "") {
     alert("You need to fill out the task form!");
     return false;
   }
@@ -33,8 +30,7 @@ var taskFormHandler = function (event) {
   } else {
     var taskDataObj = {
       name: taskNameInput,
-      type: taskTypeInput,
-      status: "to do",
+      type: taskTypeInput
     };
 
     createTaskEl(taskDataObj);
@@ -48,43 +44,19 @@ var createTaskEl = function(taskDataObj) {
 
   var taskInfoEl = document.createElement("div");
   taskInfoEl.className = "task-info";
-  taskInfoEl.innerHTML =
-    "<h3 class='task-name'>" + taskDataObj.name + "</h3><span class='task-type'>" + taskDataObj.type + "</span>";
+  taskInfoEl.innerHTML = "<h3 class='task-name'>" + taskDataObj.name + "</h3><span class='task-type'>" + taskDataObj.type + "</span>";
   listItemEl.appendChild(taskInfoEl);
 
+  // create task actions (buttons and select) for task
   var taskActionsEl = createTaskActions(taskIdCounter);
   listItemEl.appendChild(taskActionsEl);
+  tasksToDoEl.appendChild(listItemEl);
 
-  switch (taskDataObj.status) {
-    case "to do":
-      taskActionsEl.querySelector("select[name='status-change']").selectedIndex = 0;
-      tasksToDoEl.append(listItemEl);
-      break;
-    case "in progress":
-      taskActionsEl.querySelector("select[name='status-change']").selectedIndex = 1;
-      tasksInProgressEl.append(listItemEl);
-      break;
-    case "completed":
-      taskActionsEl.querySelector("select[name='status-change']").selectedIndex = 2;
-      tasksCompletedEl.append(listItemEl);
-      break;
-    default:
-      console.log("Something went wrong!");
-  }
-
-  // save task as an object with name, type, status, and id properties then push it into tasks array
-  taskDataObj.id = taskIdCounter;
-
-  tasks.push(taskDataObj);
-
-  // save tasks to localStorage
-  saveTasks();
-
-  // increase task counter for next unique task id
+  // increase task counter for next unique id
   taskIdCounter++;
 };
 
-var createTaskActions = function (taskId) {
+var createTaskActions = function(taskId) {
   // create container to hold elements
   var actionContainerEl = document.createElement("div");
   actionContainerEl.className = "task-actions";
@@ -123,23 +95,13 @@ var createTaskActions = function (taskId) {
   return actionContainerEl;
 };
 
-var completeEditTask = function (taskName, taskType, taskId) {
+var completeEditTask = function(taskName, taskType, taskId) {
   // find task list item with taskId value
-  var taskSelected = document.querySelector(
-    ".task-item[data-task-id='" + taskId + "']"
-  );
+  var taskSelected = document.querySelector(".task-item[data-task-id='" + taskId + "']");
 
   // set new values
   taskSelected.querySelector("h3.task-name").textContent = taskName;
   taskSelected.querySelector("span.task-type").textContent = taskType;
-
-  // loop through tasks array and task object with new content
-  for (var i = 0; i < tasks.length; i++) {
-    if (tasks[i].id === parseInt(taskId)) {
-      tasks[i].name = taskName;
-      tasks[i].type = taskType;
-    }
-  }
 
   alert("Task Updated!");
 
@@ -147,11 +109,9 @@ var completeEditTask = function (taskName, taskType, taskId) {
   formEl.removeAttribute("data-task-id");
   // update formEl button to go back to saying "Add Task" instead of "Edit Task"
   formEl.querySelector("#save-task").textContent = "Add Task";
-  // save tasks to localStorage
-  saveTasks();
 };
 
-var taskButtonHandler = function (event) {
+var taskButtonHandler = function(event) {
   // get target element from event
   var targetEl = event.target;
 
@@ -166,5 +126,61 @@ var taskButtonHandler = function (event) {
   }
 };
 
+var taskStatusChangeHandler = function(event) {
+  console.log(event.target.value);
 
+  // find task list item based on event.target's data-task-id attribute
+  var taskId = event.target.getAttribute("data-task-id");
 
+  var taskSelected = document.querySelector(".task-item[data-task-id='" + taskId + "']");
+
+  // convert value to lower case
+  var statusValue = event.target.value.toLowerCase();
+
+  if (statusValue === "to do") {
+    tasksToDoEl.appendChild(taskSelected);
+  } else if (statusValue === "in progress") {
+    tasksInProgressEl.appendChild(taskSelected);
+  } else if (statusValue === "completed") {
+    tasksCompletedEl.appendChild(taskSelected);
+  }
+};
+
+var editTask = function(taskId) {
+  console.log(taskId);
+
+  // get task list item element
+  var taskSelected = document.querySelector(".task-item[data-task-id='" + taskId + "']");
+
+  // get content from task name and type
+  var taskName = taskSelected.querySelector("h3.task-name").textContent;
+  console.log(taskName);
+
+  var taskType = taskSelected.querySelector("span.task-type").textContent;
+  console.log(taskType);
+
+  // write values of taskname and taskType to form to be edited
+  document.querySelector("input[name='task-name']").value = taskName;
+  document.querySelector("select[name='task-type']").value = taskType;
+
+  // set data attribute to the form with a value of the task's id so it knows which one is being edited
+  formEl.setAttribute("data-task-id", taskId);
+  // update form's button to reflect editing a task rather than creating a new one
+  formEl.querySelector("#save-task").textContent = "Save Task";
+};
+
+var deleteTask = function(taskId) {
+  console.log(taskId);
+  // find task list element with taskId value and remove it
+  var taskSelected = document.querySelector(".task-item[data-task-id='" + taskId + "']");
+  taskSelected.remove();
+};
+
+// Create a new task
+formEl.addEventListener("submit", taskFormHandler);
+
+// for edit and delete buttons
+pageContentEl.addEventListener("click", taskButtonHandler);
+
+// for changing the status
+pageContentEl.addEventListener("change", taskStatusChangeHandler);
