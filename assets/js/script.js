@@ -95,18 +95,21 @@ var createTaskActions = function (taskId) {
   editButtonEl.className = "btn edit-btn";
   editButtonEl.setAttribute("data-task-id", taskId);
   actionContainerEl.appendChild(editButtonEl);
+
   // create delete button
   var deleteButtonEl = document.createElement("button");
   deleteButtonEl.textContent = "Delete";
   deleteButtonEl.className = "btn delete-btn";
   deleteButtonEl.setAttribute("data-task-id", taskId);
   actionContainerEl.appendChild(deleteButtonEl);
+
   // create change status dropdown
   var statusSelectEl = document.createElement("select");
   statusSelectEl.setAttribute("name", "status-change");
   statusSelectEl.setAttribute("data-task-id", taskId);
   statusSelectEl.className = "select-status";
   actionContainerEl.appendChild(statusSelectEl);
+
   // create status options
   var statusChoices = ["To Do", "In Progress", "Completed"];
 
@@ -145,8 +148,10 @@ var completeEditTask = function (taskName, taskType, taskId) {
 
   // remove data attribute from form
   formEl.removeAttribute("data-task-id");
+
   // update formEl button to go back to saying "Add Task" instead of "Edit Task"
   formEl.querySelector("#save-task").textContent = "Add Task";
+
   // save tasks to localStorage
   saveTasks();
 };
@@ -179,11 +184,16 @@ var taskStatusChangeHandler = function (event) {
   // convert value to lower case
   var statusValue = event.target.value.toLowerCase();
 
+  // find the parent task item element based on the id
+  var taskSelected = document.querySelector(".task-item[data-task-id='" + taskId + "']");
+
   if (statusValue === "to do") {
     tasksToDoEl.appendChild(taskSelected);
-  } else if (statusValue === "in progress") {
+  } 
+  else if (statusValue === "in progress") {
     tasksInProgressEl.appendChild(taskSelected);
-  } else if (statusValue === "completed") {
+  } 
+  else if (statusValue === "completed") {
     tasksCompletedEl.appendChild(taskSelected);
   }
 
@@ -259,7 +269,6 @@ var loadTasks = function() {
   }
   console.log("Saved tasks found!");
   // else, load up saved tasks
-
   // parse into array of objects
   savedTasks = JSON.parse(savedTasks);
 
