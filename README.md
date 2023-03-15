@@ -21,7 +21,8 @@ Once the task is completed the user can then delete the task.
 
  https://laceyaguigam.github.io/Taskinator/
 
- 
+ <img width="1728" alt="Taskinator Screenshot" src="https://user-images.githubusercontent.com/105749016/220012702-36acdbb6-1132-456d-a597-5fed215e85a4.png">
+
 ## Contributors 
 
 Created by Lacey Agugiam Junior Full Stack Developer, my work is available at https://github.com/laceyaguigam
